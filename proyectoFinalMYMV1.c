@@ -23,6 +23,7 @@ void main(){ //MAIN INICIO
    int16 tempEncendido; //temperatura a la que se volvera a encender el circuito
    bool tempAlcan;   //boleano para saber si la temperatura ya llego donde debe
    char cCaracter; //caracter de entrada para la informacion que se manda desde la PC
+   char cApagar;
    //configuracion pantalla lcd
    lcd_init();         //inicializacion de la lcd
    printf(LCD_PUTC, "\f Proyecto Final");
@@ -34,6 +35,7 @@ void main(){ //MAIN INICIO
    while(true){//WHILE PRINCIPAL INICIO
       
       while(cCaracter !=  'A'){ //WHILE ESPERA INICIO
+         cApagar = 'A';
          set_adc_channel(0);     //elegimos el canal cero porque es el canal de la entrada analogica que vamos a usar 
          delay_ms(10);           //ponemos un delay de 10 ms
          iPOT = read_adc();     //realizamos una lectura del AN0 osea la entrada analogica-digital cero
@@ -41,12 +43,16 @@ void main(){ //MAIN INICIO
          //configuracion de la lcd para que eñl usuario vea que temperatura va a elegir
          lcd_gotoxy(1,1);
          printf(lcd_putc, "\fSeleccion de"); 
-         lcd_gotoxy(2,1);
-         printf(lcd_putc, "\fTemperatura: %Luc",tempSelec);
+         lcd_gotoxy(1,2);
+         printf(lcd_putc, "Temperatura: %Luc",tempSelec);
          cCaracter = getch();
          delay_ms(500);
       } //WHILE ESPERA FINAL
-      cCaracter = getch();
+      cApagar = getch();
+      if(cApagar == 'B')
+      {
+         cCaracter = 'B';
+      }
       //printf(lcd_putc,"\f %Lu",tempSelec);
       set_adc_channel(1);     //elegimos la entrada analogica del canal 1 para guardar el dato de la resistencia
       delay_ms(10);           //delay de 10 ms
