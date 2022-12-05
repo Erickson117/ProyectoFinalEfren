@@ -1,6 +1,7 @@
 #include<16f887.h>
 #include<stdbool.h>
 #device ADC=10 //tamaño en bits de resolución 
+#include<math.h>
 #fuses INTRC_IO,NOWDT,PROTECT,NOLVP,MCLR,NOBROWNOUT
 #use delay(INTERNAL=4000000)
 #use RS232(baud=9600, xmit=PIN_C6, rcv=PIN_C7, timeout=100)
@@ -20,6 +21,9 @@ void main(){ //MAIN INICIO
    int16 iPOT; //variable de entrada analogica para la seleccion de temperatura
    int16 tempSelec; //temperatura seleccionada traducida a grados c
    int16 tempActual; //temperatura acual traducida a grados c
+   float R1 = 10000; // value of R1 on board
+   float logR2, R2, T;
+   float c1 = 0.001129148, c2 = 0.000234125, c3 = 0.0000000876741; //steinhart-hart
    int16 tempEncendido; //temperatura a la que se volvera a encender el circuito
    bool tempAlcan;   //boleano para saber si la temperatura ya llego donde debe
    char cCaracter; //caracter de entrada para la informacion que se manda desde la PC
@@ -57,7 +61,10 @@ void main(){ //MAIN INICIO
       set_adc_channel(1);     //elegimos la entrada analogica del canal 1 para guardar el dato de la resistencia
       delay_ms(10);           //delay de 10 ms
       iTEMP = read_adc();     //escribimos el valor del canal 1 en la variable iTEMP
-      tempActual = (iTEMP*0.1759530792)-55; //conversion de la temperatura actual a grados c
+      R2 = R1 * (1023.0 / (float)iTEMP - 1.0); //calculate resistance on thermistor
+      logR2 = log(R2);
+      T = (1.0 / (c1 + c2*logR2 + c3*logR2*logR2*logR2)); // temperature in Kelvin
+      tempActual = T - 273.15; //convert Kelvin to Celcius
       tempEncendido = tempSelec-5; //generamos la variable para saber cuando volver a encender el agua cuando se enfrie
       
       //Sensor ultrasonico 
